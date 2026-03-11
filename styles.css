@@ -1,0 +1,103 @@
+:root {
+  --bg: #f7f7f8;
+  --panel: #ffffff;
+  --text: #1f2328;
+  --muted: #606770;
+  --line: #d9dde3;
+  --btn: #eceff3;
+}
+
+:root.dark {
+  --bg: #121416;
+  --panel: #1b1f24;
+  --text: #eef1f5;
+  --muted: #a8b0ba;
+  --line: #303742;
+  --btn: #2a313b;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 24px;
+  background: var(--panel);
+}
+.brand { font-weight: 700; text-transform: lowercase; }
+nav { display: flex; gap: 14px; }
+nav a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--btn);
+}
+.theme-btn {
+  border: 1px solid var(--line);
+  background: var(--btn);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.hero-wrap {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.left, .right {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 20px;
+}
+h1 { font-size: 1.9rem; margin: 0 0 10px; }
+.muted { color: var(--muted); margin: 0 0 20px; }
+.actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--btn);
+  padding: 10px 14px;
+}
+.btn.ghost { background: transparent; }
+
+.img-box {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  background: repeating-linear-gradient(45deg, var(--panel), var(--panel) 12px, var(--btn) 12px, var(--btn) 24px);
+}
+.img-placeholder {
+  border: 1px dashed var(--line);
+  padding: 40px 55px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.caption { text-align: center; color: var(--muted); margin: 10px 0 0; }
+
+@media (max-width: 840px) {
+  .hero-wrap { grid-template-columns: 1fr; }
+  nav { display: none; }
+}
