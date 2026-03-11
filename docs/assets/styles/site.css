@@ -99,26 +99,6 @@ nav a[aria-current='page'] {
   gap: 10px;
 }
 
-.pinned-command {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
-  margin: 14px 0 16px;
-  background: linear-gradient(135deg, var(--panel), var(--btn));
-}
-
-.pinned-label {
-  margin: 0 0 6px;
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.pinned-command h2 {
-  margin: 0 0 8px;
-}
-
 h1 { font-size: 1.9rem; margin: 0 0 10px; }
 
 .muted { color: var(--muted); margin: 0 0 16px; }
@@ -277,6 +257,11 @@ h1 { font-size: 1.9rem; margin: 0 0 10px; }
 .command-link.active {
   border-color: var(--text);
   background: var(--btn);
+}
+
+.command-link.pinned {
+  border-color: #b57a1a;
+  box-shadow: inset 0 0 0 1px rgba(181, 122, 26, 0.25);
 }
 
 .detail-category {

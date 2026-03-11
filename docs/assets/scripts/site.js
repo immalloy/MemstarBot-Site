@@ -13,9 +13,6 @@ const detailUsage = document.getElementById('detailUsage');
 const copyUsageButton = document.getElementById('copyUsage');
 const detailArgs = document.getElementById('detailArgs');
 const detailNotes = document.getElementById('detailNotes');
-const pinnedCommandName = document.getElementById('pinnedCommandName');
-const pinnedCommandDescription = document.getElementById('pinnedCommandDescription');
-const pinnedCommandAction = document.getElementById('pinnedCommandAction');
 
 let allCommands = [];
 let filteredCommands = [];
@@ -91,6 +88,10 @@ function getQuickNotes(command) {
 
   if (!notes.length) notes.push('Review argument descriptions for expected format and examples.');
   return notes;
+}
+
+function isPinnedCommand(command) {
+  return command && command.baseName === '/config-panel';
 }
 
 function parseCommandSignature(rawName, options, slashName) {
@@ -277,19 +278,27 @@ function renderCommandList() {
     commandsCount.textContent = shown === total ? `${shown} commands` : `${shown} of ${total} commands`;
   }
 
+  const sortedCommands = [...filteredCommands].sort((a, b) => {
+    const aPinned = isPinnedCommand(a) ? 0 : 1;
+    const bPinned = isPinnedCommand(b) ? 0 : 1;
+    if (aPinned !== bPinned) return aPinned - bPinned;
+    return a.baseName.localeCompare(b.baseName);
+  });
+
   const fragment = document.createDocumentFragment();
-  for (const command of filteredCommands) {
+  for (const command of sortedCommands) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'command-link';
     if (command.id === selectedCommandId) button.classList.add('active');
+    if (isPinnedCommand(command)) button.classList.add('pinned');
 
     const name = document.createElement('span');
     name.textContent = command.baseName;
 
     const meta = document.createElement('span');
     meta.className = 'command-mini';
-    meta.textContent = command.categoryName;
+    meta.textContent = isPinnedCommand(command) ? `Pinned • ${command.categoryName}` : command.categoryName;
 
     button.appendChild(name);
     button.appendChild(meta);
@@ -340,8 +349,8 @@ function renderCommands(data) {
     return;
   }
 
-  selectedCommandId = allCommands[0].id;
-  renderPinnedCommand();
+  const pinned = allCommands.find((command) => isPinnedCommand(command));
+  selectedCommandId = pinned ? pinned.id : allCommands[0].id;
   populateCategoryFilter();
   applyCommandFilter();
 
@@ -367,31 +376,6 @@ function renderCommands(data) {
       commandsUpdatedAt.textContent = `Last updated: ${updatedAt.toLocaleString()}`;
     }
   }
-}
-
-function renderPinnedCommand() {
-  if (!pinnedCommandName || !pinnedCommandDescription || !pinnedCommandAction) return;
-
-  const pinned = allCommands.find((command) => command.baseName === '/config-panel');
-  if (!pinned) {
-    pinnedCommandName.textContent = '/config-panel';
-    pinnedCommandDescription.textContent = 'Open the admin setup panel to configure key bot systems quickly.';
-    pinnedCommandAction.disabled = true;
-    pinnedCommandAction.textContent = '/config-panel Not Found';
-    return;
-  }
-
-  pinnedCommandName.textContent = pinned.baseName;
-  pinnedCommandDescription.textContent = pinned.description;
-  pinnedCommandAction.disabled = false;
-  pinnedCommandAction.textContent = 'Open /config-panel Details';
-  pinnedCommandAction.onclick = () => {
-    selectedCommandId = pinned.id;
-    applyCommandFilter();
-    if (commandSearchInput) commandSearchInput.value = pinned.baseName;
-    if (categoryFilter) categoryFilter.value = pinned.categoryName;
-    applyCommandFilter();
-  };
 }
 
 function populateCategoryFilter() {
