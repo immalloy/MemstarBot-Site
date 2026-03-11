@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Memstar Bot Commands</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./assets/styles/site.css" />
 </head>
 <body>
   <header class="topbar">
@@ -20,11 +20,11 @@
   <main class="page-wrap">
     <section class="panel">
       <h1>Commands</h1>
-      <p class="muted">This list is loaded from <code>commands.json</code>.</p>
-      <div id="commandsList" class="commands-grid" aria-live="polite"></div>
+      <p id="commandsUpdatedAt" class="muted">Loading latest commands...</p>
+      <div id="commandsList" aria-live="polite"></div>
     </section>
   </main>
 
-  <script src="./script.js"></script>
+  <script src="./assets/scripts/site.js"></script>
 </body>
 </html>
