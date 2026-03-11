@@ -25,6 +25,13 @@
         <aside class="commands-sidebar">
           <label class="search-label" for="commandSearch">Search Commands</label>
           <input id="commandSearch" class="search-input" type="search" placeholder="Search /ping, Utility, latency..." autocomplete="off" />
+          <div class="filter-row">
+            <label class="small-text" for="categoryFilter">Category</label>
+            <select id="categoryFilter" class="category-filter">
+              <option value="all">All Categories</option>
+            </select>
+            <button id="clearSearch" class="chip-btn" type="button">Clear</button>
+          </div>
           <p id="commandsCount" class="muted small-text">Loading command index...</p>
           <div id="commandsList" class="command-list" aria-live="polite"></div>
         </aside>
@@ -36,7 +43,10 @@
 
           <div class="detail-block">
             <h3>Usage</h3>
-            <code id="detailUsage">/command</code>
+            <div class="usage-row">
+              <code id="detailUsage">/command</code>
+              <button id="copyUsage" class="chip-btn" type="button">Copy</button>
+            </div>
           </div>
 
           <div class="detail-block">
@@ -44,6 +54,13 @@
             <div id="detailArgs" class="args-list">
               <p class="muted">This command does not require arguments.</p>
             </div>
+          </div>
+
+          <div class="detail-block">
+            <h3>Quick Notes</h3>
+            <ul id="detailNotes" class="notes-list">
+              <li>No additional notes for this command.</li>
+            </ul>
           </div>
         </section>
       </div>

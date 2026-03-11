@@ -3,12 +3,16 @@ const themeButton = document.getElementById('themeToggle');
 const commandsContainer = document.getElementById('commandsList');
 const commandsUpdatedAt = document.getElementById('commandsUpdatedAt');
 const commandSearchInput = document.getElementById('commandSearch');
+const categoryFilter = document.getElementById('categoryFilter');
+const clearSearchButton = document.getElementById('clearSearch');
 const commandsCount = document.getElementById('commandsCount');
 const detailCategory = document.getElementById('detailCategory');
 const detailName = document.getElementById('detailName');
 const detailDescription = document.getElementById('detailDescription');
 const detailUsage = document.getElementById('detailUsage');
+const copyUsageButton = document.getElementById('copyUsage');
 const detailArgs = document.getElementById('detailArgs');
+const detailNotes = document.getElementById('detailNotes');
 
 let allCommands = [];
 let filteredCommands = [];
@@ -64,6 +68,26 @@ function inferHint(token, type) {
   if (token.includes('amount')) return 'Numeric amount';
   if (token.includes('max')) return 'Maximum allowed value';
   return 'Argument value';
+}
+
+function getQuickNotes(command) {
+  if (!command || !Array.isArray(command.args) || !command.args.length) {
+    return ['No additional notes for this command.'];
+  }
+
+  const notes = [];
+  const hasMillis = command.args.some((arg) => arg.token.endsWith('_ms'));
+  if (hasMillis) notes.push('Fields ending in _ms should be integer milliseconds.');
+
+  const hasIds = command.args.some((arg) => arg.token.endsWith('_id') || arg.token.includes('role_id') || arg.token.includes('channel_id'));
+  if (hasIds) notes.push('ID fields usually require raw Discord IDs, not mentions.');
+
+  if (command.args.some((arg) => arg.hint === 'Boolean')) {
+    notes.push('Boolean options typically accept true or false.');
+  }
+
+  if (!notes.length) notes.push('Review argument descriptions for expected format and examples.');
+  return notes;
 }
 
 function parseCommandSignature(rawName, options, slashName) {
@@ -170,6 +194,7 @@ function renderCommandDetail(command) {
     detailDescription.textContent = 'Try a different search term.';
     detailUsage.textContent = '/command';
     detailArgs.innerHTML = '<p class="muted">No command selected.</p>';
+    if (detailNotes) detailNotes.innerHTML = '<li>No command selected.</li>';
     return;
   }
 
@@ -180,29 +205,48 @@ function renderCommandDetail(command) {
 
   if (!command.args.length) {
     detailArgs.innerHTML = '<p class="muted">This command does not require arguments.</p>';
-    return;
+  } else {
+    detailArgs.innerHTML = '';
+    for (const arg of command.args) {
+      const row = document.createElement('div');
+      row.className = 'arg-item';
+
+      const meta = document.createElement('div');
+      meta.className = 'arg-meta';
+
+      const badge = document.createElement('span');
+      badge.className = arg.required ? 'arg-badge required' : 'arg-badge optional';
+      badge.textContent = arg.required ? 'Required' : 'Optional';
+
+      const typeBadge = document.createElement('span');
+      typeBadge.className = 'arg-type';
+      typeBadge.textContent = arg.hint;
+
+      meta.appendChild(badge);
+      meta.appendChild(typeBadge);
+
+      const name = document.createElement('strong');
+      name.textContent = arg.label;
+
+      const hint = document.createElement('p');
+      hint.className = 'muted arg-hint';
+      hint.textContent = arg.description || arg.hint;
+
+      row.appendChild(meta);
+      row.appendChild(name);
+      row.appendChild(hint);
+      detailArgs.appendChild(row);
+    }
   }
 
-  detailArgs.innerHTML = '';
-  for (const arg of command.args) {
-    const row = document.createElement('div');
-    row.className = 'arg-item';
-
-    const badge = document.createElement('span');
-    badge.className = arg.required ? 'arg-badge required' : 'arg-badge optional';
-    badge.textContent = arg.required ? 'Required' : 'Optional';
-
-    const name = document.createElement('strong');
-    name.textContent = arg.label;
-
-    const hint = document.createElement('p');
-    hint.className = 'muted arg-hint';
-    hint.textContent = arg.description || arg.hint;
-
-    row.appendChild(badge);
-    row.appendChild(name);
-    row.appendChild(hint);
-    detailArgs.appendChild(row);
+  if (detailNotes) {
+    detailNotes.innerHTML = '';
+    const notes = getQuickNotes(command);
+    for (const note of notes) {
+      const li = document.createElement('li');
+      li.textContent = note;
+      detailNotes.appendChild(li);
+    }
   }
 }
 
@@ -236,7 +280,16 @@ function renderCommandList() {
     button.type = 'button';
     button.className = 'command-link';
     if (command.id === selectedCommandId) button.classList.add('active');
-    button.textContent = command.baseName;
+
+    const name = document.createElement('span');
+    name.textContent = command.baseName;
+
+    const meta = document.createElement('span');
+    meta.className = 'command-mini';
+    meta.textContent = command.categoryName;
+
+    button.appendChild(name);
+    button.appendChild(meta);
     button.addEventListener('click', () => setSelectedCommand(command.id));
     fragment.appendChild(button);
   }
@@ -246,7 +299,9 @@ function renderCommandList() {
 
 function applyCommandFilter() {
   const term = commandSearchInput ? commandSearchInput.value.trim().toLowerCase() : '';
+  const selectedCategory = categoryFilter ? categoryFilter.value : 'all';
   filteredCommands = allCommands.filter((command) => {
+    if (selectedCategory !== 'all' && command.categoryName !== selectedCategory) return false;
     if (!term) return true;
     return (
       command.baseName.toLowerCase().includes(term)
@@ -283,10 +338,23 @@ function renderCommands(data) {
   }
 
   selectedCommandId = allCommands[0].id;
+  populateCategoryFilter();
   applyCommandFilter();
 
   if (commandSearchInput) {
     commandSearchInput.addEventListener('input', applyCommandFilter);
+  }
+
+  if (categoryFilter) {
+    categoryFilter.addEventListener('change', applyCommandFilter);
+  }
+
+  if (clearSearchButton) {
+    clearSearchButton.addEventListener('click', () => {
+      if (commandSearchInput) commandSearchInput.value = '';
+      if (categoryFilter) categoryFilter.value = 'all';
+      applyCommandFilter();
+    });
   }
 
   if (commandsUpdatedAt && data.updatedAt) {
@@ -294,6 +362,20 @@ function renderCommands(data) {
     if (!Number.isNaN(updatedAt.getTime())) {
       commandsUpdatedAt.textContent = `Last updated: ${updatedAt.toLocaleString()}`;
     }
+  }
+}
+
+function populateCategoryFilter() {
+  if (!categoryFilter) return;
+
+  const categories = Array.from(new Set(allCommands.map((command) => command.categoryName))).sort((a, b) => a.localeCompare(b));
+  categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+
+  for (const category of categories) {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    categoryFilter.appendChild(option);
   }
 }
 
@@ -315,3 +397,21 @@ async function loadCommands() {
 
 initTheme();
 loadCommands();
+
+if (copyUsageButton) {
+  copyUsageButton.addEventListener('click', async () => {
+    if (!detailUsage) return;
+    try {
+      await navigator.clipboard.writeText(detailUsage.textContent || '');
+      copyUsageButton.textContent = 'Copied';
+      setTimeout(() => {
+        copyUsageButton.textContent = 'Copy';
+      }, 1200);
+    } catch (error) {
+      copyUsageButton.textContent = 'Failed';
+      setTimeout(() => {
+        copyUsageButton.textContent = 'Copy';
+      }, 1200);
+    }
+  });
+}
