@@ -31,7 +31,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Sync commands from VPS
-        run: mkdir -p docs/data && curl -fsSL "http://memstarbot.duckdns.org:8081/commands.json" -o docs/data/commands.json
+        run: mkdir -p docs/data && curl -fsSL "https://memstarbot.duckdns.org/commands.json" -o docs/data/commands.json
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

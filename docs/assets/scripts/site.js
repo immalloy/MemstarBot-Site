@@ -13,7 +13,20 @@ const detailArgs = document.getElementById('detailArgs');
 let allCommands = [];
 let filteredCommands = [];
 let selectedCommandId = null;
-const COMMANDS_ENDPOINT = 'http://memstarbot.duckdns.org:8081/commands.json';
+const COMMANDS_ENDPOINT = 'https://memstarbot.duckdns.org/commands.json';
+const DISCORD_OPTION_TYPES = {
+  1: 'Subcommand',
+  2: 'Subcommand Group',
+  3: 'Text',
+  4: 'Integer',
+  5: 'Boolean',
+  6: 'User',
+  7: 'Channel',
+  8: 'Role',
+  9: 'Mentionable',
+  10: 'Number',
+  11: 'Attachment'
+};
 
 function setTheme(mode) {
   if (mode === 'dark') {
@@ -42,7 +55,8 @@ function formatLabel(token) {
   return token.replaceAll('_', ' ');
 }
 
-function inferHint(token) {
+function inferHint(token, type) {
+  if (type && DISCORD_OPTION_TYPES[type]) return DISCORD_OPTION_TYPES[type];
   if (token.endsWith('_ms')) return 'Milliseconds value';
   if (token.endsWith('_id')) return 'Identifier value';
   if (token.includes('window')) return 'Duration window';
@@ -52,9 +66,41 @@ function inferHint(token) {
   return 'Argument value';
 }
 
-function parseCommandSignature(rawName) {
-  const safeRaw = typeof rawName === 'string' ? rawName.trim() : '/unknown';
-  const baseMatch = safeRaw.match(/^\/[a-zA-Z0-9_-]+/);
+function parseCommandSignature(rawName, options, slashName) {
+  const slash = typeof slashName === 'string' && slashName.trim()
+    ? slashName.trim()
+    : typeof rawName === 'string' && rawName.trim().startsWith('/')
+      ? rawName.trim()
+      : `/${String(rawName || 'unknown').trim()}`;
+
+  if (Array.isArray(options) && options.length) {
+    const args = options.map((option) => {
+      const token = String(option && option.name ? option.name : 'value').trim();
+      const required = Boolean(option && option.required);
+      const optionDescription = option && option.description ? String(option.description).trim() : '';
+
+      return {
+        token,
+        required,
+        label: formatLabel(token),
+        hint: inferHint(token, option && option.type),
+        description: optionDescription
+      };
+    });
+
+    const usageSuffix = args
+      .map((arg) => (arg.required ? `<${arg.token}>` : `[${arg.token}]`))
+      .join(' ');
+
+    return {
+      rawName: usageSuffix ? `${slash} ${usageSuffix}` : slash,
+      baseName: slash,
+      args
+    };
+  }
+
+  const safeRaw = typeof rawName === 'string' ? rawName.trim() : slash;
+  const baseMatch = slash.match(/^\/[a-zA-Z0-9_-]+/);
   const baseName = baseMatch ? baseMatch[0] : safeRaw.split(' ')[0] || '/unknown';
 
   const args = [];
@@ -68,7 +114,8 @@ function parseCommandSignature(rawName) {
       token,
       required: open === '<' && close === '>',
       label: formatLabel(token),
-      hint: inferHint(token)
+      hint: inferHint(token),
+      description: ''
     });
     match = argPattern.exec(safeRaw);
   }
@@ -84,14 +131,14 @@ function buildCommandIndex(data) {
   const categories = Array.isArray(data.categories) ? data.categories : [];
   const results = [];
 
-  for (const category of categories) {
-    const categoryName = category && category.name ? category.name : 'Other';
-    const commands = Array.isArray(category && category.commands) ? category.commands : [];
-
+  const ingestCommands = (categoryName, commands) => {
     for (const command of commands) {
-      const signature = parseCommandSignature(command && command.name ? command.name : '/unknown');
+      const commandName = command && command.name ? command.name : 'unknown';
+      const slashName = command && command.slash ? command.slash : `/${String(commandName).replace(/^\//, '')}`;
+      const optionList = Array.isArray(command && command.options) ? command.options : [];
+      const signature = parseCommandSignature(commandName, optionList, slashName);
       const description = command && command.description ? command.description : 'No description provided.';
-      const id = `${categoryName}:${signature.rawName}`;
+      const id = `${categoryName}:${signature.baseName}`;
 
       results.push({
         id,
@@ -100,6 +147,16 @@ function buildCommandIndex(data) {
         ...signature
       });
     }
+  };
+
+  for (const category of categories) {
+    const categoryName = category && category.name ? category.name : 'Other';
+    const commands = Array.isArray(category && category.commands) ? category.commands : [];
+    ingestCommands(categoryName, commands);
+  }
+
+  if (!results.length && Array.isArray(data.allCommands)) {
+    ingestCommands('Other', data.allCommands);
   }
 
   return results;
@@ -140,7 +197,7 @@ function renderCommandDetail(command) {
 
     const hint = document.createElement('p');
     hint.className = 'muted arg-hint';
-    hint.textContent = arg.hint;
+    hint.textContent = arg.description || arg.hint;
 
     row.appendChild(badge);
     row.appendChild(name);
@@ -196,7 +253,10 @@ function applyCommandFilter() {
       || command.rawName.toLowerCase().includes(term)
       || command.categoryName.toLowerCase().includes(term)
       || command.description.toLowerCase().includes(term)
-      || command.args.some((arg) => arg.token.toLowerCase().includes(term) || arg.label.toLowerCase().includes(term))
+      || command.args.some((arg) => arg.token.toLowerCase().includes(term)
+        || arg.label.toLowerCase().includes(term)
+        || (arg.description && arg.description.toLowerCase().includes(term))
+        || arg.hint.toLowerCase().includes(term))
     );
   });
 
