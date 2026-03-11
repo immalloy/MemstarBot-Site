@@ -91,7 +91,7 @@ function getQuickNotes(command) {
 }
 
 function isPinnedCommand(command) {
-  return command && command.baseName === '/config-panel';
+  return command && (command.baseName === '/config-panel' || command.baseName === '/setup-wizard');
 }
 
 function parseCommandSignature(rawName, options, slashName) {
