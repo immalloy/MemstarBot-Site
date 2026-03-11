@@ -13,6 +13,9 @@ const detailUsage = document.getElementById('detailUsage');
 const copyUsageButton = document.getElementById('copyUsage');
 const detailArgs = document.getElementById('detailArgs');
 const detailNotes = document.getElementById('detailNotes');
+const pinnedCommandName = document.getElementById('pinnedCommandName');
+const pinnedCommandDescription = document.getElementById('pinnedCommandDescription');
+const pinnedCommandAction = document.getElementById('pinnedCommandAction');
 
 let allCommands = [];
 let filteredCommands = [];
@@ -338,6 +341,7 @@ function renderCommands(data) {
   }
 
   selectedCommandId = allCommands[0].id;
+  renderPinnedCommand();
   populateCategoryFilter();
   applyCommandFilter();
 
@@ -363,6 +367,31 @@ function renderCommands(data) {
       commandsUpdatedAt.textContent = `Last updated: ${updatedAt.toLocaleString()}`;
     }
   }
+}
+
+function renderPinnedCommand() {
+  if (!pinnedCommandName || !pinnedCommandDescription || !pinnedCommandAction) return;
+
+  const pinned = allCommands.find((command) => command.baseName === '/config-panel');
+  if (!pinned) {
+    pinnedCommandName.textContent = '/config-panel';
+    pinnedCommandDescription.textContent = 'Open the admin setup panel to configure key bot systems quickly.';
+    pinnedCommandAction.disabled = true;
+    pinnedCommandAction.textContent = '/config-panel Not Found';
+    return;
+  }
+
+  pinnedCommandName.textContent = pinned.baseName;
+  pinnedCommandDescription.textContent = pinned.description;
+  pinnedCommandAction.disabled = false;
+  pinnedCommandAction.textContent = 'Open /config-panel Details';
+  pinnedCommandAction.onclick = () => {
+    selectedCommandId = pinned.id;
+    applyCommandFilter();
+    if (commandSearchInput) commandSearchInput.value = pinned.baseName;
+    if (categoryFilter) categoryFilter.value = pinned.categoryName;
+    applyCommandFilter();
+  };
 }
 
 function populateCategoryFilter() {
