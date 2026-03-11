@@ -1,0 +1,17 @@
+[
+  {
+    "name": "ping",
+    "description": "Checks if the bot is online.",
+    "usage": "/ping"
+  },
+  {
+    "name": "meme",
+    "description": "Sends a random meme.",
+    "usage": "/meme"
+  },
+  {
+    "name": "quote",
+    "description": "Posts a random quote.",
+    "usage": "/quote"
+  }
+]

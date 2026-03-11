@@ -3,34 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Memstar Bot</title>
+  <title>Memstar Bot Commands</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">memstar bot</div>
     <nav>
+      <a href="./index.html">home</a>
       <a href="./commands.html">commands</a>
       <a href="__INVITE_URL__" target="_blank" rel="noreferrer">invite</a>
     </nav>
     <button id="themeToggle" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
   </header>
 
-  <main class="hero-wrap">
-    <section class="left">
-      <h1>A very fun and silly discord bot</h1>
-      <p class="muted">hosted by immalloy</p>
-      <div class="actions">
-        <a class="btn" href="__INVITE_URL__" target="_blank" rel="noreferrer">invite to server</a>
-        <a class="btn ghost" href="./commands.html">view commands</a>
-      </div>
-    </section>
-
-    <section class="right">
-      <div class="img-box">
-        <div class="img-placeholder">IMG</div>
-      </div>
-      <p class="caption">this is memstar!</p>
+  <main class="page-wrap">
+    <section class="panel">
+      <h1>Commands</h1>
+      <p class="muted">This list is loaded from <code>commands.json</code>.</p>
+      <div id="commandsList" class="commands-grid" aria-live="polite"></div>
     </section>
   </main>
 

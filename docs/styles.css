@@ -60,6 +60,51 @@ nav a {
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
+
+.page-wrap {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 20px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.commands-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.command-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--btn);
+}
+
+.command-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.command-card p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+.command-card code {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
 .left, .right {
   border: 1px solid var(--line);
   background: var(--panel);
@@ -99,5 +144,6 @@ h1 { font-size: 1.9rem; margin: 0 0 10px; }
 
 @media (max-width: 840px) {
   .hero-wrap { grid-template-columns: 1fr; }
+  .commands-grid { grid-template-columns: 1fr; }
   nav { display: none; }
 }
