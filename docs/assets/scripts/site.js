@@ -13,6 +13,7 @@ const detailArgs = document.getElementById('detailArgs');
 let allCommands = [];
 let filteredCommands = [];
 let selectedCommandId = null;
+const COMMANDS_ENDPOINT = 'http://memstarbot.duckdns.org:8081/commands.json';
 
 function setTheme(mode) {
   if (mode === 'dark') {
@@ -240,7 +241,8 @@ async function loadCommands() {
   if (!commandsContainer) return;
 
   try {
-    const response = await fetch('./data/commands.json', { cache: 'no-store' });
+    const cacheBustedUrl = `${COMMANDS_ENDPOINT}?t=${Date.now()}`;
+    const response = await fetch(cacheBustedUrl, { cache: 'no-store' });
     if (!response.ok) throw new Error('Commands endpoint request failed');
     const data = await response.json();
     renderCommands(data);
