@@ -118,35 +118,125 @@ h1 { font-size: 1.9rem; margin: 0 0 10px; }
   padding: 0 20px;
 }
 
-.category + .category { margin-top: 20px; }
-
-.category h2 { margin: 0 0 12px; }
-
-.commands-grid {
+.commands-layout {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: minmax(260px, 320px) 1fr;
+  gap: 16px;
+  align-items: start;
 }
 
-.command-card {
+.commands-sidebar,
+.command-detail {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px;
+  background: var(--bg);
+}
+
+.search-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.search-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--panel);
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.small-text { font-size: 0.9rem; }
+
+.command-list {
+  display: grid;
+  gap: 8px;
+  max-height: 480px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.command-link {
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 9px 10px;
+  cursor: pointer;
+}
+
+.command-link.active {
+  border-color: var(--text);
   background: var(--btn);
 }
 
-.command-card h3 {
+.detail-category {
+  margin: 0 0 8px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+}
+
+.detail-block {
+  margin-top: 16px;
+}
+
+.detail-block h3 {
   margin: 0 0 8px;
   font-size: 1rem;
 }
 
-.command-card p {
-  margin: 0;
-  color: var(--muted);
+.detail-block code {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 9px;
+  background: var(--panel);
+}
+
+.args-list {
+  display: grid;
+  gap: 8px;
+}
+
+.arg-item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 10px;
+}
+
+.arg-badge {
+  display: inline-block;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--line);
+}
+
+.arg-badge.required {
+  background: #f4e5d8;
+  color: #5b3311;
+}
+
+.arg-badge.optional {
+  background: #ddebf8;
+  color: #13395f;
+}
+
+.arg-hint {
+  margin: 6px 0 0;
 }
 
 @media (max-width: 840px) {
   .hero-wrap { grid-template-columns: 1fr; }
-  .commands-grid { grid-template-columns: 1fr; }
+  .commands-layout { grid-template-columns: 1fr; }
+  .command-list { max-height: 300px; }
   nav { display: none; }
 }

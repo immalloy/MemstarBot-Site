@@ -21,7 +21,32 @@
     <section class="panel">
       <h1>Commands</h1>
       <p id="commandsUpdatedAt" class="muted">Loading latest commands...</p>
-      <div id="commandsList" aria-live="polite"></div>
+      <div class="commands-layout">
+        <aside class="commands-sidebar">
+          <label class="search-label" for="commandSearch">Search commands</label>
+          <input id="commandSearch" class="search-input" type="search" placeholder="Search /ping, utility, latency..." autocomplete="off" />
+          <p id="commandsCount" class="muted small-text">Loading command index...</p>
+          <div id="commandsList" class="command-list" aria-live="polite"></div>
+        </aside>
+
+        <section class="command-detail" aria-live="polite">
+          <p id="detailCategory" class="detail-category">Category</p>
+          <h2 id="detailName">Select a command</h2>
+          <p id="detailDescription" class="muted">Pick a command from the left to view full details.</p>
+
+          <div class="detail-block">
+            <h3>Usage</h3>
+            <code id="detailUsage">/command</code>
+          </div>
+
+          <div class="detail-block">
+            <h3>Arguments</h3>
+            <div id="detailArgs" class="args-list">
+              <p class="muted">This command does not require arguments.</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </section>
   </main>
 
