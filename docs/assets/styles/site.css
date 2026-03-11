@@ -37,7 +37,7 @@ body {
   transition: background-color 260ms ease, border-color 260ms ease;
 }
 
-.brand { font-weight: 700; text-transform: lowercase; }
+.brand { font-weight: 700; }
 
 nav { display: flex; gap: 14px; }
 
